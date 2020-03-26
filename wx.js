@@ -86,10 +86,10 @@ export default {
         let shaValue = sha1(full) // 使用sha1加密jsapi_ticket
         wx.config({
             debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-            appId: appid, // 必填，公众号的唯一标识
-            timestamp: timestamp, // 必填，生成签名的时间戳
-            nonceStr: noncestr, // 必填，生成签名的随机串
-            signature: shaValue, // 必填，签名，见附录1
+            appId, // 必填，公众号的唯一标识
+            timestamp, // 必填，生成签名的时间戳
+            nonceStr, // 必填，生成签名的随机串
+            signature, // 必填，签名，见附录1
             jsApiList: ['onMenuShareAppMessage', 'onMenuShareTimeline','openLocation','getLocation','scanQRCode'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
         })
         // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
@@ -105,11 +105,11 @@ export default {
      */
     menuShareAppMessage: (title, desc, link, imgUrl, callback) => {
         wx.onMenuShareAppMessage({
-            title: title, // 分享标题
-            desc: desc, // 分享描述
-            link: link,
+            title, // 分享标题
+            desc, // 分享描述
+            link,
             // 获取未付款订单, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-            imgUrl: imgUrl, // 分享图标
+            imgUrl, // 分享图标
             type: '', // 分享类型,music、video或link，不填默认为link
             dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
             success: callback, // 用户确认分享后执行的回调函数,
@@ -127,10 +127,10 @@ export default {
      */
     menuShareTimeline: (title, link, imgUrl, callback) => {
         wx.onMenuShareTimeline({
-            title: title, // 分享标题
-            link: link,
+            title, // 分享标题
+            link,
             // 获取未付款订单, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-            imgUrl: imgUrl, // 分享图标
+            imgUrl, // 分享图标
             success: callback, // 用户确认分享后执行的回调函数
             cancel: function () {
                 // 用户取消分享后执行的回调函数
@@ -167,12 +167,12 @@ export default {
     wechatPay: (appId, timeStamp, nonceStr, packages, signType, paySign, callback) => {
         WeixinJSBridge.invoke('getBrandWCPayRequest', {
             debug: false,
-            appId: appId, // appID
-            timeStamp: timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
-            nonceStr: nonceStr, // 支付签名随机串，不长于 32 位
-            package: packages, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
-            signType: signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
-            paySign: paySign // 支付签名
+            appId, // appID
+            timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+            nonceStr, // 支付签名随机串，不长于 32 位
+            package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
+            signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+            paySign // 支付签名
         }, callback)
     }
 }
