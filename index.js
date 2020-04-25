@@ -45,25 +45,22 @@ const config = {
 }
 
 let baseInfo
-/** 开发环境 */
-if( process.env.NODE_ENV === 'development' ) {
-    /** 开发环境中(开发) */
-    if( process.env.VUE_APP_TITLE === 'local' ) {
-        baseInfo = config.local
-    /** 开发环境中(调试) */
-    }else {
-        baseInfo = config.dev
-    }
 
-/** 生产环境 */
-}else {
-    /** 生产环境(测试) */
-    if( process.env.VUE_APP_TITLE === 'test' ) {
+switch ( process.env.VUE_APP_SECRET ) { //VUE_APP_SECRET 环境变量
+    case 'dev':   // 注意这里的名字要和配置的环境名字对应起来
+        baseInfo = config.dev
+        break
+    case 'local':
+        baseInfo = config.local
+        break
+    case 'test':
         baseInfo = config.test
-    /** 生产环境(正式) */
-    }else {
+        break
+    case 'pro':
         baseInfo = config.pro
-    }
+        break
+    default:
+    
 }
 
 export default baseInfo
