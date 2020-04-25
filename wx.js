@@ -90,7 +90,7 @@ export default {
             timestamp, // 必填，生成签名的时间戳
             nonceStr, // 必填，生成签名的随机串
             signature, // 必填，签名，见附录1
-            jsApiList: ['onMenuShareAppMessage', 'onMenuShareTimeline','openLocation','getLocation','scanQRCode'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+            jsApiList: ['onMenuShareAppMessage', 'onMenuShareTimeline','openLocation','getLocation','scanQRCode','previewImage','chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
         })
         // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
         wx.ready(callback)
@@ -113,7 +113,7 @@ export default {
             type: '', // 分享类型,music、video或link，不填默认为link
             dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
             success: callback, // 用户确认分享后执行的回调函数,
-            cancel: function () {
+            cancel: () => {
                 // 用户取消分享后执行的回调函数
             }
         })
@@ -132,7 +132,7 @@ export default {
             // 获取未付款订单, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
             imgUrl, // 分享图标
             success: callback, // 用户确认分享后执行的回调函数
-            cancel: function () {
+            cancel: () => {
                 // 用户取消分享后执行的回调函数
             }
         })
@@ -146,16 +146,16 @@ export default {
             desc: 'scanQRCode desc',
             needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
             scanType: ["qrCode","barCode"], // 可以指定扫二维码还是一维码，默认二者都有
-            success: function(res){
+            success: (res) => {
                 return callback(res)
             },
-            cancel: function () {
+            cancel:  () => {
                 // 用户取消分享后执行的回调函数
             }
         });
     },
     /**
-     * 微信支付方法
+     * 微信内H5调起支付 直接调用 不需要验证wx.config 不需要在wx.ready里面回调
      * @param {any} appId appID
      * @param {any} timeStamp timeStamp
      * @param {any} nonceStr nonceStr
@@ -174,5 +174,76 @@ export default {
             signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
             paySign // 支付签名
         }, callback)
+    },
+    /**
+     * 微信公众号支付方法 需要验证wx.config 需要在wx.ready里面回调(建议使用 WeixinJSBridge.invoke 支付)
+     * @param {any} appId appID
+     * @param {any} timeStamp timeStamp
+     * @param {any} nonceStr nonceStr
+     * @param {any} packages packages
+     * @param {any} signType signType
+     * @param {any} paySign paySign
+     * @param {any} callback 回调函数
+     */
+    chooseWXPay:(timestamp, nonceStr, package, signType, paySign, callback) => {
+        wx.chooseWXPay({
+            timestamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+            nonceStr, // 支付签名随机串，不长于 32 位
+            package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
+            signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+            paySign, // 支付签名
+            success: res => {
+                // 支付成功后的回调函数
+                return callback(res)
+            }
+        });
+    },
+    /**
+     * 微信预览图片接口
+     * @param {any} current 当前显示图片的http链接
+     * @param {any} urls 需要预览的图片http链接列表
+     */
+    previewImage:(current,urls) => {
+        wx.previewImage({
+            current, // 当前显示图片的http链接
+            urls // 需要预览的图片http链接列表
+        })
+    },
+    /**
+     * 微信获取地理位置接口
+     * @param {any} type 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+     * @param {any} callback 回调函数
+     * @param {any} res 回调返回的数据
+     * @param {any} res.latitude  纬度，浮点数，范围为90 ~ -90 
+     * @param {any} res.longitude 经度，浮点数，范围为180 ~ -180。
+     * @param {any} res.speed 速度，以米/每秒计
+     * @param {any} res.accuracy 位置精度
+     */
+    getLocation:(type = 'wgs84', callback) => {
+        wx.getLocation({
+            type, // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+            success: res => {
+                return callback(res)
+            }
+        });
+    },
+     /**
+     * 微信内置地图查看位置接口
+     * @param {any} latitude 纬度，浮点数，范围为90 ~ -90
+     * @param {any} longitude 经度，浮点数，范围为180 ~ -180。
+     * @param {any} name 位置名
+     * @param {any} address  地址详情说明
+     * @param {any} scale 地图缩放级别,整形值,范围从1~28。默认为最大
+     * @param {any} infoUrl 在查看位置界面底部显示的超链接,可点击跳转
+     */
+    openLocation:(latitude, longitude, name, address, scale, infoUrl) => {
+        wx.openLocation({
+            latitude: 0, // 纬度，浮点数，范围为90 ~ -90
+            longitude: 0, // 经度，浮点数，范围为180 ~ -180。
+            name: '', // 位置名
+            address: '', // 地址详情说明
+            scale: 1, // 地图缩放级别,整形值,范围从1~28。默认为最大
+            infoUrl: '' // 在查看位置界面底部显示的超链接,可点击跳转
+        });
     }
 }
